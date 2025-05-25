@@ -1,6 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "ztimer.h"
 #include "stdio_base.h"
 
@@ -9,31 +7,32 @@ int main(void)
 {
     stdio_init();
 
-    size_t max_len = 240;
-    char msg[max_len];
-
-    //stdio_write("hello from board\n", 17);
-    //stdio_write("this is a very very very very long string, because i feel like it", 66);
-
-    char xxx[] = {0x01, 0x02, 0x03 };
-    stdio_write(xxx, 3);
+    size_t max_size = 256;
+    char buffer[max_size];
+    size_t current_size = 0;
+    uint32_t timestamp = 0;
 
     while (1) {
-        
-        //checking for input data
-        if (stdio_available()) {
-            
-            //read
-            ssize_t count = stdio_read(msg, max_len);
-            
-            //we need to append null byte to terminate
-            //msg[count++] = '\x00';
 
-            stdio_write(msg, count);
+        while (stdio_available()) {
+
+            //read byte after byte, store it in buffer[]
+            char c;
+            ssize_t count = stdio_read(&c, 1);
+            buffer[current_size] = c;
+            current_size += count;
+
+            timestamp = ztimer_now(ZTIMER_MSEC);
         }
-        
-        //absolutely NO sleep because we could (and will) miss some chars
-        //ztimer_sleep(ZTIMER_MSEC, 1);
+
+        //no new data since 10ms, let's do something with it
+        if (current_size > 0 && ztimer_now(ZTIMER_MSEC) - timestamp > 10) {
+            stdio_write(buffer, current_size);
+
+            //reset buffer
+            current_size = 0;
+        }
+
     }
     return 0;
 }

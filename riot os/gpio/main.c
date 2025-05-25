@@ -19,6 +19,7 @@ int main(void)
     gpio_init(pin_button, GPIO_IN_PD);
 
     int pin_led = GPIO_PIN(1, 3);
+    gpio_init(pin_led, GPIO_OUT);
     gpio_write(pin_led, true);
 
 

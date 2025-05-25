@@ -26,15 +26,14 @@ def listener():
             need_print = True
             last_read = time.time()
             
-            """            
-            if args.hex:
-                print(f"{bytes_to_hex(data)}")
-            else:
-                print(data)
-            """            
 
         if need_print and time.time() - last_read > 0.1:
-            print(buffer.decode())
+            if args.hex:
+                print(f"{bytes_to_hex(buffer)}")
+            else:
+                #print(buffer)
+                print(buffer.decode())
+
             buffer = b''
             need_print = False
 
